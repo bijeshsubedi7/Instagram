@@ -13,7 +13,8 @@ import Parse
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
+    
+    
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
@@ -24,6 +25,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 configuration.server = "http://parse-ios7.herokuapp.com/parse"
             })
         )
+        
+        NotificationCenter.default.addObserver(forName: Notification.Name("didLogout"), object: nil, queue: OperationQueue.main) { (Notification) in
+            print("Logout notification received")
+            self.logout()
+        }
+        
+        if PFUser.current() != nil {
+            print("USer found")
+            print(PFUser.current())
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let loginViewController = storyboard.instantiateViewController(withIdentifier: "s")
+            self.window?.rootViewController = loginViewController
+        }
+        
         return true
     }
 
@@ -48,7 +63,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
-
+    
+    func logout(){
+        PFUser.logOutInBackground { (error: Error?) in
+            if (error != nil){
+                print (error?.localizedDescription)
+            } else {
+                print("Successful loggout")
+                let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                let loginViewController = storyboard.instantiateInitialViewController()
+                self.window?.rootViewController = loginViewController
+            }
+        }
+    }
 
 }
 
