@@ -25,8 +25,17 @@ class StoryViewController: UIViewController, UITableViewDataSource, UITableViewD
         tableView.delegate = self
         tableView.rowHeight = 300
         fetchStories()
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), for: UIControlEvents.valueChanged)
+        tableView.insertSubview(refreshControl, at: 0)
         // Do any additional setup after loading the view.
         
+    }
+    
+    @objc func refreshControlAction(_ refreshControl: UIRefreshControl){
+        fetchStories()
+        tableView.reloadData()
+        refreshControl.endRefreshing()
     }
 
     override func didReceiveMemoryWarning() {
@@ -55,8 +64,20 @@ class StoryViewController: UIViewController, UITableViewDataSource, UITableViewD
         return cell
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return posts.count;
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let cell = sender as! UITableViewCell
+        if let indexPath = tableView.indexPath(for: cell) {
+            let detailViewController = segue.destination as! DetailViewController
+            detailViewController.post = posts[indexPath.row]
+        }
     }
     
 
